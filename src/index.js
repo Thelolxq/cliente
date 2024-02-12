@@ -4,7 +4,8 @@ const http = require('http')
 const maestros = require('./routes/maestros.routes')
 const alumnos = require('./routes/alumnos.routes')
 const dbConnection = require('./database/dbconfig')
-const cors = require('cors')
+const cors = require('cors');
+const { contarClientesConectados, clientesConectados } = require('./controller/shortPolling.controller');
 require('dotenv').config()
 
 const app = express();
@@ -12,7 +13,7 @@ app.use(cors())
 const server=http.createServer(app);
 const io= require('socket.io')(server,{
     cors:{
-        origin:'http://localhost:5173'
+        origin:'*'
     }
 })
 
@@ -22,22 +23,8 @@ let activeRooms = {};
 //rutas------------------------------------
 app.use('/maestros', maestros )
 app.use('/alumnos', alumnos)
-app.get('/rooms', (req, res) => {
-  
-    const checkForUpdates = () => {
-      if (Object.keys(activeRooms).length > 0) {
-      
-        const rooms = Object.keys(activeRooms);
-        res.json(rooms);
-      } else {
-       
-        setTimeout(checkForUpdates, 10000); 
-      }
-    };
-  
-  
-    checkForUpdates();
-  });
+app.use('/shortPolling', require('../src/routes/shortPolling.routes'))
+
   
   
 dbConnection
@@ -49,6 +36,10 @@ const lastMessages = [];
 
 io.on("connection", (socket) => {
   console.log('cliente conectado');
+
+  contarClientesConectados(socket)
+
+  console.log('clientes:'+ clientesConectados.length);
 
   socket.on("joinRoom", (room) => {
     socket.join(room);

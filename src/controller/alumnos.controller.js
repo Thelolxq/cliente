@@ -33,12 +33,14 @@ const obtenerAlumnos = async(req, res)=>{
     }
 }
 
-const eliminarAlumno = async(req, res)=>{
+const eliminarAlumno = async(req, res, notificador)=>{
     const {id_alumno}= req.params
-
+   console.log("antes del try")
     try{
-
+    
+        notificador.responderClientes("eliminado exitosamente");
         const resultado = await alumnos.eliminarAlumno(id_alumno)
+        console.log("entro el try") 
         res.json(resultado)
     }catch(err){
         res.status(500).json({err: err.message})

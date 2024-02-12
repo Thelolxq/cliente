@@ -2,11 +2,6 @@ const db = require('../database/dbconfig')
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-
-
-
-
-
 const crearUsuario = async (nombre, correo, contraseña) => {
   let connection;
 
